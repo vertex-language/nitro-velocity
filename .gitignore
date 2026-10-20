@@ -1,0 +1,10 @@
+.DS_Store
+.build/
+
+# Fetched and cooked by tools/fetch_assets.py.
+assets/
+assets_src/
+
+# Written by --demo and cmd/snapshot; only the README image is kept.
+screenshots/*
+!screenshots/hero.jpg

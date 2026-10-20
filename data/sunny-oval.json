@@ -1,0 +1,11 @@
+{
+  "name": "Sunny Oval",
+  "laps": 3,
+  "oval": { "straight": 260, "radius": 110 },
+  "width": 16,
+  "apron": 1.6,
+  "kerb": 1.4,
+  "wallInside": 21,
+  "wallOutside": 26,
+  "grass": 1400
+}
