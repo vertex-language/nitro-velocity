@@ -44,7 +44,7 @@ public final class HUD {
     /// overlay need only clear and send these.
     public private(set) var Dirty: [draw.IRect] = []
 
-    public init(_ r: race.Race) {
+    public init(r: race.Race) {
         let t = r.Track
         var lo = geom.Vec2(1e9, 1e9), hi = geom.Vec2(-1e9, -1e9)
         var i = 0
@@ -59,7 +59,7 @@ public final class HUD {
         mapHi = hi
     }
 
-    func face(_ size: float32, weight: int32 = 700, italic: bool = true) -> font.Face {
+    func face(size: float32, weight: int32 = 700, italic: bool = true) -> font.Face {
         let key = "\(Int(size * 10))/\(weight)/\(italic)"
         if let f = faces[key] { return f }
         let f = font.Load(font.Spec(families: ["Avenir Next Condensed", "Avenir Next", "Helvetica Neue"], size: size, weight: weight, italic: italic))
@@ -77,7 +77,7 @@ public final class HUD {
 
     /// Draw draws the HUD over a frame of width × height pixels (frosting
     /// the results' backdrop here when CPUFrost).
-    public func Draw(_ px: inout [uint8], _ width: int, _ height: int, _ r: race.Race, dt: float32) {
+    public func Draw(px: inout [uint8], width: int, height: int, r: race.Race, dt: float32) {
         let s = update(width, height, r, dt: dt)
         if let box = resultsBox(width, height, s, r), CPUFrost {
             frost(&px, width, height, box.0, strength: box.1, radius: 26 * s)
@@ -89,7 +89,7 @@ public final class HUD {
 
     /// Draw draws the HUD into a canvas the frame's size (an overlay: the
     /// results' backdrop is left to the GPU, from Panel).
-    public func Draw(into c: draw.Canvas, _ width: int, _ height: int, _ r: race.Race, dt: float32) {
+    public func Draw(into c: draw.Canvas, width: int, height: int, r: race.Race, dt: float32) {
         let s = update(width, height, r, dt: dt)
         if let box = resultsBox(width, height, s, r) {
             Panel = (x: float32(box.0.X), y: float32(box.0.Y), width: float32(box.0.Width), height: float32(box.0.Height), radius: 26 * s, strength: box.1)
@@ -99,11 +99,11 @@ public final class HUD {
 
     // update moves the HUD's notes and timers on, and works out where it
     // will draw; answers its scale (1 at 720 pixels high).
-    func update(_ width: int, _ height: int, _ r: race.Race, dt: float32) -> float32 {
+    func update(width: int, height: int, r: race.Race, dt: float32) -> float32 {
         let s = float32(height) / 720
         Panel = nil
         Dirty = []
-        func mark(_ x: float32, _ y: float32, _ w: float32, _ h: float32) {
+        func mark(x: float32, y: float32, w: float32, h: float32) {
             let x0 = max(0, int(x)), y0 = max(0, int(y))
             let x1 = min(width, int(x + w) + 1), y1 = min(height, int(y + h) + 1)
             if x1 > x0 && y1 > y0 { Dirty.append(draw.IRect(int32(x0), int32(y0), int32(x1 - x0), int32(y1 - y0))) }
@@ -142,7 +142,7 @@ public final class HUD {
 
     // resultsBox is the results panel (and how far it has faded in) once
     // you've finished; nil before.
-    func resultsBox(_ width: int, _ height: int, _ s: float32, _ r: race.Race) -> (draw.IRect, float32)? {
+    func resultsBox(width: int, height: int, s: float32, r: race.Race) -> (draw.IRect, float32)? {
         if !r.Player.Finished || finishedAt < 0 { return nil }
         let k = math.Clamp((r.Clock - finishedAt) / 0.7, 0, 1)
         let pw = 620 * s, ph = 470 * s
@@ -152,7 +152,7 @@ public final class HUD {
     }
 
     // paint draws it all.
-    func paint(_ c: draw.Canvas, _ width: int, _ height: int, _ s: float32, _ r: race.Race) {
+    func paint(c: draw.Canvas, width: int, height: int, s: float32, r: race.Race) {
         if let car = Choosing {
             chooser(c, width, height, s, r, car)
             return
@@ -175,7 +175,7 @@ public final class HUD {
     // ---- the parts ----
 
     // standing is your place and lap, top left, and the times under it.
-    func standing(_ c: draw.Canvas, _ s: float32, _ r: race.Race) {
+    func standing(c: draw.Canvas, s: float32, r: race.Race) {
         let me = r.Player!
         let n = r.Order.count
         glass(c, draw.IRect(int32(20 * s), int32(18 * s), int32(250 * s), int32(118 * s)), s)
@@ -203,7 +203,7 @@ public final class HUD {
     }
 
     // minimap is the track from above, top right, everyone on it.
-    func minimap(_ c: draw.Canvas, _ width: int, _ s: float32, _ r: race.Race) {
+    func minimap(c: draw.Canvas, width: int, s: float32, r: race.Race) {
         let size = 170 * s
         let x0 = float32(width) - size - 24 * s, y0 = 18 * s
         glass(c, draw.IRect(int32(x0), int32(y0), int32(size), int32(size)), s)
@@ -212,7 +212,7 @@ public final class HUD {
         let cx = x0 + size / 2, cy = y0 + size / 2
         let mid = (mapLo + mapHi) * 0.5
         // The map turned so the main straight runs up the screen.
-        func at(_ p: geom.Vec2) -> (float32, float32) {
+        func at(p: geom.Vec2) -> (float32, float32) {
             return (cx + (p.X - mid.X) * k, cy - (p.Y - mid.Y) * k)
         }
         // The track: a dot every few meters, close enough to read as a line.
@@ -234,7 +234,7 @@ public final class HUD {
 
     // speedometer is bottom right: the speed in big italic figures, the
     // rev arc round it red toward the limit, the gear, nitro under it.
-    func speedometer(_ c: draw.Canvas, _ width: int, _ height: int, _ s: float32, _ r: race.Race) {
+    func speedometer(c: draw.Canvas, width: int, height: int, s: float32, r: race.Race) {
         let me = r.Player!
         let car = me.Car
         let radius = 108 * s
@@ -284,7 +284,7 @@ public final class HUD {
     }
 
     // countdown is the lights' count in the middle: 3, 2, 1, GO!
-    func countdown(_ c: draw.Canvas, _ width: int, _ height: int, _ s: float32, _ r: race.Race) {
+    func countdown(c: draw.Canvas, width: int, height: int, s: float32, r: race.Race) {
         var word = ""
         var age: float32 = 0
         if r.Clock < 0 && r.Clock > -3 {
@@ -307,7 +307,7 @@ public final class HUD {
     }
 
     // banner is the note in the middle (a lap, a best lap).
-    func banner(_ c: draw.Canvas, _ width: int, _ height: int, _ s: float32) {
+    func banner(c: draw.Canvas, width: int, height: int, s: float32) {
         let a = math.Clamp(math.Min(noteLeft / 0.4, (2.4 - noteLeft) / 0.25), 0, 1)
         let f = face(34 * s, weight: 800)
         let w = f.Measure(note)
@@ -319,7 +319,7 @@ public final class HUD {
 
     // results is the flag: on a glass panel over the race (blurred under
     // it), the place you finished, everyone's times.
-    func results(_ c: draw.Canvas, _ box: draw.IRect, _ s: float32, _ r: race.Race, _ k: float32) {
+    func results(c: draw.Canvas, box: draw.IRect, s: float32, r: race.Race, k: float32) {
         let me = r.Player!
         let x0 = float32(box.X), y0 = float32(box.Y), pw = float32(box.Width), ph = float32(box.Height)
         do {
@@ -364,7 +364,7 @@ public final class HUD {
     // chooser is the start: the race's name top left, and at the bottom a
     // glass card with the car you're on, ‹ › either side, what it is, a dot
     // for each car, and the keys.
-    func chooser(_ c: draw.Canvas, _ width: int, _ height: int, _ s: float32, _ r: race.Race, _ car: race.CarInfo) {
+    func chooser(c: draw.Canvas, width: int, height: int, s: float32, r: race.Race, car: race.CarInfo) {
         text(c, "NITRO VELOCITY", size: 40 * s, x: 32 * s, baseline: 62 * s, color: draw.Color(255, 255, 255, 255), weight: 900)
         let sub = "\(r.Track.Name.uppercased())   ·   \(r.Track.Laps) LAPS   ·   \(r.Order.count) CARS"
         text(c, sub, size: 15 * s, x: 34 * s, baseline: 88 * s, color: draw.Color(150, 205, 255, 255), weight: 600, italic: false)
@@ -419,7 +419,7 @@ public final class HUD {
     // ---- drawing helpers ----
 
     // glass is a small frosted card behind HUD text.
-    func glass(_ c: draw.Canvas, _ r: draw.IRect, _ s: float32) {
+    func glass(c: draw.Canvas, r: draw.IRect, s: float32) {
         c.FillRounded(r, radii: draw.Radii(all: 14 * s), draw.Color(8, 14, 28, 120))
         let edge = draw.Color(255, 255, 255, 50)
         // One color an edge: top, right, bottom, left.
@@ -427,7 +427,7 @@ public final class HUD {
     }
 
     // text draws a line with a soft shadow under it.
-    func text(_ c: draw.Canvas, _ s: string, size: float32, x: float32, baseline: float32, color: draw.Color, weight: int32 = 700, italic: bool = true) {
+    func text(c: draw.Canvas, s: string, size: float32, x: float32, baseline: float32, color: draw.Color, weight: int32 = 700, italic: bool = true) {
         let f = face(size, weight: weight, italic: italic)
         // Shaped once per string and face: most of the HUD's words repeat
         // every frame.
@@ -448,7 +448,7 @@ public final class HUD {
 
 // arc fills a ring segment from angle a0 to a1 (radians, 0 right, going
 // clockwise on screen) between two radii.
-func arc(_ c: draw.Canvas, _ cx: float32, _ cy: float32, _ r0: float32, _ r1: float32, _ a0: float32, _ a1: float32, _ col: draw.Color) {
+func arc(c: draw.Canvas, cx: float32, cy: float32, r0: float32, r1: float32, a0: float32, a1: float32, col: draw.Color) {
     var p = draw.Path()
     let am = (a0 + a1) * 0.5
     let c0 = math.Cos(a0), s0 = math.Sin(a0)
@@ -466,7 +466,7 @@ func arc(_ c: draw.Canvas, _ cx: float32, _ cy: float32, _ r0: float32, _ r1: fl
 
 // frost blurs the frame inside a box and dims everything outside it a
 // little: a glass panel over the race. Strength 0…1 eases it in.
-func frost(_ px: inout [uint8], _ width: int, _ height: int, _ box: draw.IRect, strength: float32, radius: float32 = 0) {
+func frost(px: inout [uint8], width: int, height: int, box: draw.IRect, strength: float32, radius: float32 = 0) {
     if strength <= 0 { return }
     // Dim the whole frame.
     let dim = 1 - 0.35 * strength
@@ -523,7 +523,7 @@ func frost(_ px: inout [uint8], _ width: int, _ height: int, _ box: draw.IRect, 
 }
 
 // boxBlur is one pass of a 5-wide box blur both ways, edges clamped.
-func boxBlur(_ img: [float32], _ w: int, _ h: int) -> [float32] {
+func boxBlur(img: [float32], w: int, h: int) -> [float32] {
     var tmp = [float32](repeating: 0, count: img.count)
     for y in 0..<h {
         for x in 0..<w {
@@ -548,13 +548,13 @@ func boxBlur(_ img: [float32], _ w: int, _ h: int) -> [float32] {
 }
 
 /// clock is seconds as m:ss.hh.
-public func clock(_ t: float32) -> string {
+public func clock(t: float32) -> string {
     let cs = Int((math.Max(0, t) * 100).rounded())
     let m = cs / 6000, sec = (cs / 100) % 60, h = cs % 100
     return "\(m):\(sec < 10 ? "0" : "")\(sec).\(h < 10 ? "0" : "")\(h)"
 }
 
-func ordinal(_ n: int) -> string {
+func ordinal(n: int) -> string {
     if n % 100 >= 11 && n % 100 <= 13 { return "\(n)th" }
     switch n % 10 {
     case 1: return "\(n)st"
@@ -565,7 +565,7 @@ func ordinal(_ n: int) -> string {
 }
 
 // paintColor is a racer's dot on the map, in their paint.
-func paintColor(_ paint: int) -> draw.Color {
+func paintColor(paint: int) -> draw.Color {
     switch paint % Paints.count {
     case 1: return draw.Color(220, 30, 30, 255)
     case 2: return draw.Color(240, 240, 245, 255)

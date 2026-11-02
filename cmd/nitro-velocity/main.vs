@@ -76,7 +76,7 @@ final class Game {
     /// Where the HUD drew last frame.
     var drew: [draw.IRect] = []
 
-    init(_ t: track.Track, _ cars: [race.CarInfo], _ v: look.Look, mute: bool, demo: float64, car: int) {
+    init(t: track.Track, cars: [race.CarInfo], v: look.Look, mute: bool, demo: float64, car: int) {
         circuit = t
         self.cars = cars
         choice = car
@@ -95,7 +95,7 @@ final class Game {
         }
     }
 
-    static func newRace(_ t: track.Track, _ cars: [race.CarInfo], _ choice: int, _ seed: uint64) -> race.Race {
+    static func newRace(t: track.Track, cars: [race.CarInfo], choice: int, seed: uint64) -> race.Race {
         return race.Race(t, cars: cars, mine: choice, names: field, seed: seed)
     }
 
@@ -117,18 +117,18 @@ final class Game {
     }
 
     // choose moves to the next car (or back), on the grid where you'll start.
-    func choose(_ step: int) {
+    func choose(step: int) {
         choice = (choice + step + cars.count) % cars.count
         racing = Game.newRace(circuit, cars, choice, seed)
         hud.Reset()
         audio.Attach(racing)
     }
 
-    func down(_ k: window.KeyCode) -> bool { return keys[k.rawValue] ?? false }
+    func down(k: window.KeyCode) -> bool { return keys[k.rawValue] ?? false }
 
     // input turns keys into smooth controls: the wheel eases toward full
     // lock and back (faster back to the middle), pedals ramp in quickly.
-    func input(_ dt: float32) {
+    func input(dt: float32) {
         var want: float32 = 0
         if down(.a) || down(.arrowLeft) { want += 1 }
         if down(.d) || down(.arrowRight) { want -= 1 }
@@ -150,7 +150,7 @@ final class Game {
     // Present draws a frame on the GPU and presents it: the scene, the HUD
     // drawn on the host as an overlay and uploaded, the results panel's
     // frost done by the layer. Nothing is read back.
-    func Present(_ f: run.Frame, _ layer: gpu.Layer) {
+    func Present(f: run.Frame, layer: gpu.Layer) {
         let dt = f.Dt
         age += float64(dt)
         fps += (1 / math.Max(dt, 0.001) - fps) * 0.05
@@ -234,7 +234,7 @@ final class Game {
 
     // camera is this frame's view: the chase camera (near or far), or low
     // on the bumper; B looks back.
-    func camera(_ dt: float32) -> forward.Camera {
+    func camera(dt: float32) -> forward.Camera {
         let car = racing.Player.Car
         if picking {
             // Round your car's front, slowly swinging from one side to the
@@ -280,7 +280,7 @@ final class Game {
     }
 
     // save writes a demo frame to screenshots/play-n.png.
-    func save(_ px: [uint8], _ width: int, _ height: int) {
+    func save(px: [uint8], width: int, height: int) {
         let name = "screenshots/play-\(shots + 1).png"
         do {
             try fs.WriteFile(fs.Path(name), png.Encode(image.RGBA(width: width, height: height, pixels: px)))
@@ -291,7 +291,7 @@ final class Game {
         shots += 1
     }
 
-    func Handle(_ win: window.Window, _ e: window.Event) -> bool {
+    func Handle(win: window.Window, e: window.Event) -> bool {
         switch e {
         case .keyDown(let k):
             keys[k.Code.rawValue] = true
@@ -343,14 +343,14 @@ final class Game {
     }
 }
 
-func f2(_ x: float32) -> string {
+func f2(x: float32) -> string {
     let v = Int((x * 100).rounded())
     return "\(v / 100).\(v % 100 < 10 ? "0" : "")\(v % 100)"
 }
 
 func main() async -> int32 {
     let args = CommandLine.arguments
-    func flag(_ name: string) -> string? {
+    func flag(name: string) -> string? {
         if let i = args.firstIndex(of: name), i + 1 < args.count { return args[i + 1] }
         return nil
     }

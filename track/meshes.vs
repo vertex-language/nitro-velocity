@@ -37,7 +37,7 @@ public struct Meshes {
 }
 
 /// Build makes a track's meshes, `chunk` meters of lap at a time.
-public func Build(_ t: Track, chunk: float32 = 60) -> Meshes {
+public func Build(t: Track, chunk: float32 = 60) -> Meshes {
     var m = Meshes()
     let n = t.Points.count
     // Chunk boundaries in sample indices.
@@ -90,7 +90,7 @@ public func Build(_ t: Track, chunk: float32 = 60) -> Meshes {
 // closing the loop), at height y, facing up, `across` strips wide; U
 // across in meters times uScale (or 0…1 when uScale is 1: a painted
 // line), V along.
-func ribbon(_ t: Track, _ a: int, _ b: int, _ l0: float32, _ l1: float32, y: float32, uScale: float32, vScale: float32, across: int = 1) -> mesh.Mesh {
+func ribbon(t: Track, a: int, b: int, l0: float32, l1: float32, y: float32, uScale: float32, vScale: float32, across: int = 1) -> mesh.Mesh {
     var m = mesh.Mesh()
     let n = t.Points.count
     let cols = max(1, across)
@@ -122,7 +122,7 @@ func ribbon(_ t: Track, _ a: int, _ b: int, _ l0: float32, _ l1: float32, y: flo
 // the track's edge out by its width, over samples a…b: a bevelled inner
 // step rising from the asphalt, a crowned top with subtle rumble serrations
 // every 1.5 m, and an outer taper back to the apron.
-func kerb(_ t: Track, _ a: int, _ b: int, _ side: float32) -> mesh.Mesh {
+func kerb(t: Track, a: int, b: int, side: float32) -> mesh.Mesh {
     var m = mesh.Mesh()
     let n = t.Points.count
     let across = 6
@@ -164,7 +164,7 @@ func kerb(_ t: Track, _ a: int, _ b: int, _ side: float32) -> mesh.Mesh {
 // wall is a Jersey-profile concrete barrier along lateral `at` (its face
 // toward the middle), up to `height - 0.3` where the painted top band
 // takes over with zero coplanar overlap.
-func wall(_ t: Track, _ a: int, _ b: int, _ at: float32, height: float32, thick: float32) -> mesh.Mesh {
+func wall(t: Track, a: int, b: int, at: float32, height: float32, thick: float32) -> mesh.Mesh {
     let toward: float32 = at < 0 ? 1 : -1   // the face's normal, along left
     let back = at - toward * thick
     let split = height - 0.3
@@ -179,7 +179,7 @@ func wall(_ t: Track, _ a: int, _ b: int, _ at: float32, height: float32, thick:
 
 // band is the wall's painted top: the upper 0.3 m of the barrier and its
 // top cap, meeting wall() cleanly at `height - 0.3` without Z-fighting.
-func band(_ t: Track, _ a: int, _ b: int, _ at: float32, height: float32, thick: float32) -> mesh.Mesh {
+func band(t: Track, a: int, b: int, at: float32, height: float32, thick: float32) -> mesh.Mesh {
     let toward: float32 = at < 0 ? 1 : -1
     let back = at - toward * thick
     let split = height - 0.3
@@ -191,7 +191,7 @@ func band(_ t: Track, _ a: int, _ b: int, _ at: float32, height: float32, thick:
 
 // side is a vertical strip at lateral `at` from y0 to y1, facing `toward`
 // (along left); U along the lap.
-func side(_ t: Track, _ a: int, _ b: int, _ at: float32, _ y0: float32, _ y1: float32, _ toward: float32, uScale: float32) -> mesh.Mesh {
+func side(t: Track, a: int, b: int, at: float32, y0: float32, y1: float32, toward: float32, uScale: float32) -> mesh.Mesh {
     var m = mesh.Mesh()
     let n = t.Points.count
     for i in a...b {
@@ -218,14 +218,14 @@ func side(_ t: Track, _ a: int, _ b: int, _ at: float32, _ y0: float32, _ y1: fl
 }
 
 // top is a flat strip between laterals l0 and l1 at height y, facing up.
-func top(_ t: Track, _ a: int, _ b: int, _ l0: float32, _ l1: float32, _ y: float32) -> mesh.Mesh {
+func top(t: Track, a: int, b: int, l0: float32, l1: float32, y: float32) -> mesh.Mesh {
     let lo = math.Min(l0, l1), hi = math.Max(l0, l1)
     return ribbon(t, a, b, lo, hi, y: y, uScale: 0.25, vScale: 0.25)
 }
 
 // armco is a steel crash barrier at lateral `at` (facing the middle): two
 // rails, and posts every 2.5 m.
-func armco(_ t: Track, _ a: int, _ b: int, _ at: float32) -> (mesh.Mesh, mesh.Mesh) {
+func armco(t: Track, a: int, b: int, at: float32) -> (mesh.Mesh, mesh.Mesh) {
     let toward: float32 = at < 0 ? 1 : -1
     var rails = mesh.Mesh()
     for (y0, y1) in [(float32(0.38), float32(0.56)), (float32(0.6), float32(0.78))] {
@@ -253,7 +253,7 @@ func armco(_ t: Track, _ a: int, _ b: int, _ at: float32) -> (mesh.Mesh, mesh.Me
 
 // slanted is a strip from height y0 (flush at `at`) to y1 (stood `out`
 // toward the middle): one face of a rail's bulge.
-func slanted(_ t: Track, _ a: int, _ b: int, _ at: float32, _ y0: float32, _ y1: float32, _ toward: float32, out: float32, flip: bool = false) -> mesh.Mesh {
+func slanted(t: Track, a: int, b: int, at: float32, y0: float32, y1: float32, toward: float32, out: float32, flip: bool = false) -> mesh.Mesh {
     var m = mesh.Mesh()
     let n = t.Points.count
     for i in a...b {
@@ -286,7 +286,7 @@ func slanted(_ t: Track, _ a: int, _ b: int, _ at: float32, _ y0: float32, _ y1:
 }
 
 // finish is the checkered strip across the track at the line.
-func finish(_ t: Track) -> mesh.Mesh {
+func finish(t: Track) -> mesh.Mesh {
     var m = mesh.Mesh()
     let w = t.Edge
     let (p0, d) = t.At(0)
@@ -304,7 +304,7 @@ func finish(_ t: Track) -> mesh.Mesh {
 
 // grid is the painted boxes of the first eight starting places: a line
 // across in front of each, and short lines down its sides.
-func grid(_ t: Track) -> mesh.Mesh {
+func grid(t: Track) -> mesh.Mesh {
     var m = mesh.Mesh()
     for slot in 0..<8 {
         let (p, yaw) = t.Grid(slot)
@@ -324,7 +324,7 @@ func grid(_ t: Track) -> mesh.Mesh {
 }
 
 // grass is the ground round about, square tiles just under the asphalt.
-func grass(_ t: Track, tile: float32) -> [mesh.Mesh] {
+func grass(t: Track, tile: float32) -> [mesh.Mesh] {
     var out: [mesh.Mesh] = []
     let half = t.Grass
     var z = -half

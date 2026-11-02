@@ -24,7 +24,7 @@ import (
     "time"
 )
 
-func save(_ px: [uint8], _ w: int, _ h: int, _ name: string) {
+func save(px: [uint8], w: int, h: int, name: string) {
     do {
         try fs.WriteFile(fs.Path("screenshots/\(name).png"), png.Encode(image.RGBA(width: w, height: h, pixels: px)))
         print("snapshot: wrote screenshots/\(name).png")

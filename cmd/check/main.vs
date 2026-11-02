@@ -26,7 +26,7 @@ import (
 
 var failures = 0
 
-func check(_ ok: bool, _ what: string) {
+func check(ok: bool, what: string) {
     print(ok ? "ok    \(what)" : "FAIL  \(what)")
     if !ok { failures += 1 }
 }
@@ -196,7 +196,7 @@ func main() -> int32 {
     check(grid > 0.02 && going > 0.02, "engines heard on the grid (\(f2(grid * 100))% RMS) and racing (\(f2(going * 100))%)")
     // One engine: at the redline on the throttle it's louder and brighter
     // (more zero crossings) than idling.
-    func measure(_ x: [float32]) -> (float32, int) {
+    func measure(x: [float32]) -> (float32, int) {
         var e: float32 = 0
         var z = 0
         for i in 1..<x.count {
@@ -220,7 +220,7 @@ func main() -> int32 {
     return failures == 0 ? 0 : 1
 }
 
-func f2(_ x: float32) -> string {
+func f2(x: float32) -> string {
     let v = Int((math.Abs(x) * 100).rounded())
     return "\(x < 0 ? "-" : "")\(v / 100).\(v % 100 < 10 ? "0" : "")\(v % 100)"
 }

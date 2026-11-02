@@ -39,7 +39,7 @@ struct Scenery {
 let signWords = ["NITRO VELOCITY", "SUNNY OVAL", "VERTEX RACING", "FULL THROTTLE", "VELOCITY 24"]
 
 // box is an axis-aligned box from lo to hi, its UVs in meters / tile.
-func box(_ lo: geom.Vec3, _ hi: geom.Vec3, tile: float32 = 2) -> mesh.Mesh {
+func box(lo: geom.Vec3, hi: geom.Vec3, tile: float32 = 2) -> mesh.Mesh {
     var m = mesh.Box(geom.AABB(min: lo, max: hi))
     // Re-map UVs to world meters so textures don't stretch.
     for i in 0..<m.Positions.count {
@@ -54,7 +54,7 @@ func box(_ lo: geom.Vec3, _ hi: geom.Vec3, tile: float32 = 2) -> mesh.Mesh {
 /// buildTerrain builds a 3D heightfield (`mesh/height.Field`) around the track:
 /// level across the racing ribbon and verges, rising into rolling grassy knolls
 /// in the infield and valley foothills outside.
-func buildTerrain(_ t: track.Track) -> height.Field {
+func buildTerrain(t: track.Track) -> height.Field {
     let half = t.Grass
     let spacing: float32 = 10
     let count = int(half * 2 / spacing) + 1
@@ -95,7 +95,7 @@ func buildTerrain(_ t: track.Track) -> height.Field {
 
 /// buildScenery makes the start gantry and its lights, FIA catch fencing,
 /// brake markers, and 3D terrain & hills.
-func buildScenery(_ t: track.Track, _ field: height.Field) -> Scenery {
+func buildScenery(t: track.Track, field: height.Field) -> Scenery {
     var s = Scenery()
 
     // The start gantry: twin space-frame lattice towers beyond the aprons,
@@ -158,7 +158,7 @@ func buildScenery(_ t: track.Track, _ field: height.Field) -> Scenery {
 
 // buildCatchFence builds chunks of FIA debris fencing and steel posts along
 // the top of the outside concrete barrier.
-func buildCatchFence(_ t: track.Track) -> ([mesh.Mesh], [mesh.Mesh]) {
+func buildCatchFence(t: track.Track) -> ([mesh.Mesh], [mesh.Mesh]) {
     var fences: [mesh.Mesh] = []
     var posts: [mesh.Mesh] = []
     let n = t.Points.count
@@ -206,7 +206,7 @@ func buildCatchFence(_ t: track.Track) -> ([mesh.Mesh], [mesh.Mesh]) {
 
 // buildBrakeBoards places 150m, 100m, and 50m brake marker boards along the
 // outside verge approaching each turn entry.
-func buildBrakeBoards(_ t: track.Track) -> [(mesh.Mesh, int)] {
+func buildBrakeBoards(t: track.Track) -> [(mesh.Mesh, int)] {
     var out: [(mesh.Mesh, int)] = []
     let n = t.Points.count
     // Find turn entries where curvature transitions from straight to turn.
@@ -240,7 +240,7 @@ func buildBrakeBoards(_ t: track.Track) -> [(mesh.Mesh, int)] {
 
 // boards are signs along the outside wall: 6 m long, on top of it,
 // every 9 m down both straights, facing in.
-func boards(_ t: track.Track) -> [(mesh.Mesh, int)] {
+func boards(t: track.Track) -> [(mesh.Mesh, int)] {
     var out: [(mesh.Mesh, int)] = []
     var k = 0
     var s: float32 = 0
@@ -260,7 +260,7 @@ func boards(_ t: track.Track) -> [(mesh.Mesh, int)] {
 }
 
 // hills is a ring of rolling mountains far beyond the heightfield terrain.
-func hills(_ field: height.Field) -> mesh.Mesh {
+func hills(field: height.Field) -> mesh.Mesh {
     var m = mesh.Mesh()
     let rings = 22, around = 140
     let r0: float32 = 720, r1: float32 = 2400
@@ -319,7 +319,7 @@ struct Woods {
 // 3D terrain:
 // thick outside the walls a way back, in clumps in the infield, none near
 // the track, the grandstand or the straight's sightlines.
-func plant(_ t: track.Track, _ field: height.Field, kinds: int) -> Woods {
+func plant(t: track.Track, field: height.Field, kinds: int) -> Woods {
     var w = Woods()
     // No [[T]](repeating:count:) yet (vsc_TODO #47).
     for _ in 0..<kinds { w.Places.append([]) }
@@ -361,7 +361,7 @@ struct Meadow {
 
 // plantGrass scatters 3D grass tufts along the inner and outer verges and
 // embankments within sight of the track.
-func plantGrass(_ t: track.Track, _ field: height.Field, kinds: int) -> Meadow {
+func plantGrass(t: track.Track, field: height.Field, kinds: int) -> Meadow {
     var m = Meadow()
     for _ in 0..<kinds { m.Places.append([]) }
     let clumps = noise.Simplex(seed: 19)

@@ -26,7 +26,7 @@ public final class Driver {
     /// The speed it wanted last step, m/s (for the check and the HUD's debug).
     public private(set) var Want: float32 = 0
 
-    public init(_ t: track.Track, skill: float32, lane: float32, seed: uint64) {
+    public init(t: track.Track, skill: float32, lane: float32, seed: uint64) {
         track = t
         Skill = skill
         Lane = lane
@@ -43,7 +43,7 @@ public final class Driver {
     // line is where the racing line runs across the road s meters along:
     // out wide (right, the outside) on the straights, in to the left at
     // the middle of each turn, judged by how much the road turns round it.
-    func line(_ s: float32) -> float32 {
+    func line(s: float32) -> float32 {
         var turn: float32 = 0
         var k: float32 = -40
         while k <= 40 {
@@ -56,7 +56,7 @@ public final class Driver {
     }
 
     /// Drive is what to do this step.
-    public func Drive(_ r: Racer, _ race: Race, _ dt: float32) -> vehicle.Controls {
+    public func Drive(r: Racer, race: Race, dt: float32) -> vehicle.Controls {
         let car = r.Car
         let place = r.Place
         let v = math.Max(0, car.ForwardSpeed)

@@ -37,7 +37,7 @@ public final class Sound {
 
     /// A sound for a race: opens the default output (none in a test, or
     /// when there's no device: it then makes the sound and drops it).
-    public init(_ r: race.Race, play: bool = true) {
+    public init(r: race.Race, play: bool = true) {
         var o: device.Output? = nil
         var problem = ""
         if play {
@@ -61,7 +61,7 @@ public final class Sound {
     }
 
     /// Attach listens to a (new) race: an engine for each car.
-    public func Attach(_ r: race.Race) {
+    public func Attach(r: race.Race) {
         for e in engines { e.voice.Done = true }
         engines = []
         var k = 0
@@ -77,7 +77,7 @@ public final class Sound {
     }
 
     /// Update sets every voice from the race as seen from the camera.
-    public func Update(_ r: race.Race, _ camera: forward.Camera, dt: float32) {
+    public func Update(r: race.Race, camera: forward.Camera, dt: float32) {
         let ear = camera.Eye
         let ahead = (camera.Target - camera.Eye).Normalized()
         let right = ahead.Cross(geom.Vec3.UnitY).Normalized()
@@ -196,13 +196,13 @@ public final class Sound {
 
     // ---- one-shots ----
 
-    func beep(_ f: float32, _ seconds: float32) {
+    func beep(f: float32, seconds: float32) {
         if Muted { return }
         let v = Mixer.Add(mix.Tone(f, seconds: seconds, rate: rate, gain: 0.32, harmonic: 0.35))
         v.Gain = 0.9
     }
 
-    func fanfare(_ won: bool) {
+    func fanfare(won: bool) {
         if Muted { return }
         // Rising thirds for a win, a gentler pair otherwise.
         let notes: [(float32, float32)] = won ? [(523.25, 0), (659.25, 0.14), (783.99, 0.28), (1046.5, 0.42)] : [(392, 0), (523.25, 0.18)]
@@ -213,7 +213,7 @@ public final class Sound {
         }
     }
 
-    func knock(_ strength: float32, pan: float32) {
+    func knock(strength: float32, pan: float32) {
         if Muted { return }
         var noise = mix.Noise(seed: uint32(Mixer.Voices.count * 31 + 5))
         var lp = mix.Biquad(.lowpass, frequency: 420, q: 0.9, rate: rate)
@@ -262,7 +262,7 @@ final class engine {
     var pop: float32 = 0
     var retune = 0
 
-    init(_ rate: int, seed: uint32, player: bool) {
+    init(rate: int, seed: uint32, player: bool) {
         self.rate = rate
         self.player = player
         noise = mix.Noise(seed: seed &+ 99)
@@ -270,7 +270,7 @@ final class engine {
         voice = mix.Voice { buf, n in self.fill(&buf, n) }
     }
 
-    func fill(_ buf: inout [float32], _ n: int) -> bool {
+    func fill(buf: inout [float32], n: int) -> bool {
         let sr = float32(rate)
         // Each cylinder a touch different: the uneven beat of a crossplane V8.
         let firing: [float32] = [1, 0.78, 0.93, 0.7, 0.96, 0.74, 0.88, 0.81]
@@ -337,7 +337,7 @@ final class noiseVoice {
     var wobble: float32 = 0
     var retune = 0
 
-    init(_ rate: int, seed: uint32, kind: noiseKind) {
+    init(rate: int, seed: uint32, kind: noiseKind) {
         self.rate = rate
         self.kind = kind
         noise = mix.Noise(seed: seed)
@@ -345,7 +345,7 @@ final class noiseVoice {
         voice.Gain = 0
     }
 
-    func fill(_ buf: inout [float32], _ n: int) -> bool {
+    func fill(buf: inout [float32], n: int) -> bool {
         let sr = float32(rate)
         for i in 0..<n {
             if retune <= 0 {
@@ -391,7 +391,7 @@ final class noiseVoice {
 
 // tanh, near enough for a saturator (a Padé fit, exact at 0, flat
 // past ±3): math.Exp per sample costs too much.
-func tanh(_ x: float32) -> float32 {
+func tanh(x: float32) -> float32 {
     if x > 3 { return 1 }
     if x < -3 { return -1 }
     let x2 = x * x
@@ -408,7 +408,7 @@ func makeSine() -> [float32] {
     return t
 }
 
-func sine(_ phase: float32) -> float32 {
+func sine(phase: float32) -> float32 {
     var p = phase - math.Floor(phase)
     p *= 1024
     let i = int(p)

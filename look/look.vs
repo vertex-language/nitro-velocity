@@ -75,7 +75,7 @@ public final class Look {
     /// A look at a track, with what's in `assets` (the sky, textures, the
     /// cars' models) and `data` (the trees' species); `cars` are the cars
     /// races will have.
-    public init(_ t: track.Track, cars: [race.CarInfo], assets: fs.Path, data: fs.Path, gpu: bool = true) throws {
+    public init(t: track.Track, cars: [race.CarInfo], assets: fs.Path, data: fs.Path, gpu: bool = true) throws {
         circuit = t
         var t0 = time.Instant.Now()
         Renderer = try forward.Renderer(gpu: gpu, shadow: 2048)
@@ -117,7 +117,7 @@ public final class Look {
     // round it, the trees, the shadows under cars and the nitro flames.
     // (Apart from init: a closure over self in an init is refused by
     // vsc's verifier, vsc_TODO #80.)
-    func load(_ t: track.Track, assets: fs.Path, data: fs.Path) throws {
+    func load(t: track.Track, assets: fs.Path, data: fs.Path) throws {
         let names = ["asphalt_color.jpg", "asphalt_normal.jpg", "asphalt_rough.jpg", "grass_color.jpg", "grass_normal.jpg",
                      "concrete_color.jpg", "concrete_normal.jpg"]
         var files: [[uint8]] = []
@@ -195,7 +195,7 @@ public final class Look {
         hillside.DoubleSided = true
 
         // What lies flat on the ground casts no shadow worth drawing.
-        func add(_ m: mesh.Mesh, _ mat: forward.Material, flat: bool = false, inProbe: bool = true) throws {
+        func add(m: mesh.Mesh, mat: forward.Material, flat: bool = false, inProbe: bool = true) throws {
             if m.VertexCount == 0 { return }
             var it = forward.Item(try Renderer.Upload(m), mat)
             if flat {
@@ -355,20 +355,20 @@ public final class Look {
     }
 
     /// Frame draws the race from a camera and reads the frame back.
-    public func Frame(_ r: race.Race, _ camera: forward.Camera, width: int, height: int) -> [uint8] {
+    public func Frame(r: race.Race, camera: forward.Camera, width: int, height: int) -> [uint8] {
         let (items, scene, camera) = prepare(r, camera, width: width, height: height)
         return Renderer.Frame(camera, items, scene)
     }
 
     /// Render draws the race from a camera and leaves the frame on the GPU
     /// (Renderer.Color), for a window's layer to present.
-    public func Render(_ r: race.Race, _ camera: forward.Camera, width: int, height: int) {
+    public func Render(r: race.Race, camera: forward.Camera, width: int, height: int) {
         let (items, scene, camera) = prepare(r, camera, width: width, height: height)
         Renderer.Render(camera, items, scene)
     }
 
     // prepare is a frame's items and scene.
-    func prepare(_ r: race.Race, _ camera: forward.Camera, width: int, height: int) -> ([forward.Item], forward.Scene, forward.Camera) {
+    func prepare(r: race.Race, camera: forward.Camera, width: int, height: int) -> ([forward.Item], forward.Scene, forward.Camera) {
         Renderer.Resize(width: width, height: height)
         let aspect = float32(width) / float32(max(1, height))
         var items = Skip.contains("still") ? [] : still
@@ -443,7 +443,7 @@ public final class Look {
 
     // trees is the woods' and verge grass tufts' instance sets in view, each
     // at the detail its distance calls for.
-    func trees(_ camera: forward.Camera, aspect: float32) -> [forward.Item] {
+    func trees(camera: forward.Camera, aspect: float32) -> [forward.Item] {
         var out: [forward.Item] = []
         var counts = [0, 0, 0]
         for g in groves {
@@ -476,7 +476,7 @@ public final class Look {
 
     // flames are a boosting car's exhaust: a multi-fin shock-diamond plasma
     // plume with an incandescent core out of each pipe under the rear bumper.
-    func flames(_ car: vehicle.Car, _ t: float32) -> [forward.Item] {
+    func flames(car: vehicle.Car, t: float32) -> [forward.Item] {
         var out: [forward.Item] = []
         guard let flame = flame else { return out }
         for x in [float32(-0.3), 0.3] {
@@ -504,7 +504,7 @@ public final class Look {
 
     // tireSmoke emits soft, expanding volumetric smoke/vapor puffs behind the
     // rear tires when drifting (high slip) or under heavy nitro boost.
-    func tireSmoke(_ car: vehicle.Car, _ t: float32, skid: float32, boosting: bool) -> [forward.Item] {
+    func tireSmoke(car: vehicle.Car, t: float32, skid: float32, boosting: bool) -> [forward.Item] {
         var out: [forward.Item] = []
         guard let puff = puff, let puffTex = puffTex else { return out }
         let boostAdd: float32 = boosting ? 0.32 : 0
@@ -543,7 +543,7 @@ public final class Look {
 // rubbered paints the asphalt: darker where the cars run (the middle of
 // the road and the line through the turns), dustier at the edges, with
 // patches.
-func rubbered(_ t: track.Track, _ m: mesh.Mesh) -> mesh.Mesh {
+func rubbered(t: track.Track, m: mesh.Mesh) -> mesh.Mesh {
     var out = m
     let n = noise.Simplex(seed: 17)
     var hint = -1
@@ -564,7 +564,7 @@ func rubbered(_ t: track.Track, _ m: mesh.Mesh) -> mesh.Mesh {
 // worn paints a verge: how worn (alpha) by how far out from the apron,
 // out to a ragged width that wanders along the lap, wider on the turns
 // where cars run wide; lighter and darker in clumps.
-func worn(_ t: track.Track, _ m: mesh.Mesh) -> mesh.Mesh {
+func worn(t: track.Track, m: mesh.Mesh) -> mesh.Mesh {
     var out = m
     let n = noise.Simplex(seed: 31)
     var hint = -1
@@ -586,7 +586,7 @@ func worn(_ t: track.Track, _ m: mesh.Mesh) -> mesh.Mesh {
 
 // mown paints grass: broad lighter and darker patches, and stripes from
 // a mower near the track.
-func mown(_ m: mesh.Mesh) -> mesh.Mesh {
+func mown(m: mesh.Mesh) -> mesh.Mesh {
     var out = m
     let n = noise.Simplex(seed: 23)
     out.Colors = []
@@ -634,12 +634,12 @@ final class Foliage {
 
 extension Look {
     // foliage reads a cooked foliage file onto the renderer.
-    func foliage(_ path: fs.Path) throws -> Foliage {
+    func foliage(path: fs.Path) throws -> Foliage {
         let doc = try gltf.Load(path)
         let images = decodeAll(doc.Images.map { $0.Bytes })
         var textures: [forward.Texture?] = []
         for img in images { textures.append(img.map { Renderer.Upload($0) }) }
-        func tex(_ i: int) -> forward.Texture? {
+        func tex(i: int) -> forward.Texture? {
             if i < 0 || i >= doc.Textures.count { return nil }
             let k = doc.Textures[i].Image
             return k >= 0 && k < textures.count ? textures[k] : nil

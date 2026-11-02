@@ -22,7 +22,7 @@ public struct Paint {
     /// The seats and trim, when the paint has its own.
     public var Trim: geom.Vec4?
 
-    public init(_ name: string, variant: int, color: geom.Vec4? = nil, trim: geom.Vec4? = nil) {
+    public init(name: string, variant: int, color: geom.Vec4? = nil, trim: geom.Vec4? = nil) {
         Name = name
         Variant = variant
         Color = color
@@ -83,13 +83,13 @@ public final class CarModel {
     /// the renderer, its four wheels matched to vehicle.Car's order (front
     /// left, front right, rear left, rear right; +X is left). `plate`
     /// replaces the license plate's picture.
-    public init(_ r: forward.Renderer, path: fs.Path, plate: forward.Texture? = nil) throws {
+    public init(r: forward.Renderer, path: fs.Path, plate: forward.Texture? = nil) throws {
         let doc = try gltf.Load(path)
         // Its images, decoded on threads (JPEG and PNG through the system).
         let images = decodeAll(doc.Images.map { $0.Bytes })
         var textures: [forward.Texture?] = []
         for img in images { textures.append(img.map { r.Upload($0) }) }
-        func tex(_ i: int) -> forward.Texture? {
+        func tex(i: int) -> forward.Texture? {
             if i < 0 || i >= doc.Textures.count { return nil }
             let k = doc.Textures[i].Image
             return k >= 0 && k < textures.count ? textures[k] : nil
@@ -168,7 +168,7 @@ public final class CarModel {
     /// hub, steered and rolled, in a paint; the brake lights bright when
     /// braking. Detail 0 is everything; 1 leaves out the cabin; 2 (far
     /// off) also the wheels' fine spokes, the brakes and small hardware.
-    public func Items(_ car: vehicle.Car, _ paint: Paint, braking: bool, detail: int) -> [forward.Item] {
+    public func Items(car: vehicle.Car, paint: Paint, braking: bool, detail: int) -> [forward.Item] {
         var out: [forward.Item] = []
         let body = car.Matrix
         let v = min(paint.Variant, variants - 1)
@@ -229,14 +229,14 @@ public final class CarModel {
 
 // fine is whether a material's parts are too small to see far off: brake
 // discs and calipers, mirrors, small hardware.
-func fine(_ name: string) -> bool {
+func fine(name: string) -> bool {
     return name == "Disc" || name == "Brake" || name == "Mirror" || name == "Mechanical" || name == "Hardware" || name == "License"
 }
 
 // material turns a glTF material into the renderer's, correcting raw near-zero
 // albedos in the source asset so wheels, tires, brakes, and aero trim read
 // with physically plausible reflectance under daylight.
-func material(_ g: gltf.Material, _ tex: (int) -> forward.Texture?) -> forward.Material {
+func material(g: gltf.Material, tex: (int) -> forward.Texture?) -> forward.Material {
     var m = forward.Material()
     m.Base = tex(g.BaseColorTexture)
     m.Color = g.BaseColor
@@ -323,7 +323,7 @@ func material(_ g: gltf.Material, _ tex: (int) -> forward.Texture?) -> forward.M
 }
 
 // decodeAll decodes images, a thread each; one that won't decode is nil.
-func decodeAll(_ all: [[uint8]]) -> [image.RGBA?] {
+func decodeAll(all: [[uint8]]) -> [image.RGBA?] {
     var boxes: [decodeBox] = []
     var threads: [sync.Thread] = []
     for b in all {
@@ -339,7 +339,7 @@ final class decodeBox {
     let bytes: [uint8]
     var image: image.RGBA? = nil
 
-    init(_ b: [uint8]) { bytes = b }
+    init(b: [uint8]) { bytes = b }
 
     func run() { image = format.Decode(bytes) }
 }

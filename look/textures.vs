@@ -12,14 +12,14 @@ import (
 // sRGB, as the renderer reads base colors.
 
 // grain is a little per-pixel noise, -1…1.
-func grain(_ x: int, _ y: int, _ seed: int) -> float32 {
+func grain(x: int, y: int, seed: int) -> float32 {
     var h = uint32(truncatingIfNeeded: x &* 374761393 &+ y &* 668265263 &+ seed &* 2147483647)
     h = (h ^ (h >> 13)) &* 1274126177
     h ^= h >> 16
     return float32(h & 0xFFFF) / 32768 - 1
 }
 
-func put(_ px: inout [uint8], _ i: int, _ r: float32, _ g: float32, _ b: float32, _ a: float32 = 1) {
+func put(px: inout [uint8], i: int, r: float32, g: float32, b: float32, a: float32 = 1) {
     px[i * 4] = uint8(math.Clamp(r * 255 + 0.5, 0, 255))
     px[i * 4 + 1] = uint8(math.Clamp(g * 255 + 0.5, 0, 255))
     px[i * 4 + 2] = uint8(math.Clamp(b * 255 + 0.5, 0, 255))
@@ -86,7 +86,7 @@ func band() -> image.RGBA {
 
 /// brakeBoard paints a corner distance marker ("150", "100", "50"): crisp
 /// white numerals on a dark racing-green and black panel.
-func brakeBoard(_ text: string) -> image.RGBA {
+func brakeBoard(text: string) -> image.RGBA {
     let w = 256, h = 192
     var px = [uint8](repeating: 0, count: w * h * 4)
     for y in 0..<h {
@@ -131,7 +131,7 @@ func catchFenceTexture() -> image.RGBA {
 
 /// banner is a sign: words in heavy italic, white on a deep gradient, a
 /// stripe of the accent color under them.
-func banner(_ text: string, accent: draw.Color, width: int = 1024, height: int = 160) -> image.RGBA {
+func banner(text: string, accent: draw.Color, width: int = 1024, height: int = 160) -> image.RGBA {
     var px = [uint8](repeating: 0, count: width * height * 4)
     for y in 0..<height {
         let t = float32(y) / float32(height)
@@ -167,7 +167,7 @@ func shadowBlob() -> image.RGBA {
 }
 
 /// flat is a texture of one color.
-func flat(_ r: float32, _ g: float32, _ b: float32) -> image.RGBA {
+func flat(r: float32, g: float32, b: float32) -> image.RGBA {
     var px = [uint8](repeating: 0, count: 16)
     for i in 0..<4 { put(&px, i, r, g, b) }
     return image.RGBA(width: 2, height: 2, pixels: px)

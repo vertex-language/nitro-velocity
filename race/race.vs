@@ -96,7 +96,7 @@ public final class Race {
     /// A race on a track: you in `cars[mine]` and a car each for `names`,
     /// picked from `cars` at random by `seed` (Picks says what they got),
     /// you starting from `slot` on the grid (the back by default).
-    public init(_ t: track.Track, cars: [CarInfo], mine: int = 0, names: [string], seed: uint64 = 1, slot: int = -1) {
+    public init(t: track.Track, cars: [CarInfo], mine: int = 0, names: [string], seed: uint64 = 1, slot: int = -1) {
         Track = t
         Cars = cars
         Racers = Entities.Store(Racer.self)
@@ -157,7 +157,7 @@ public final class Race {
     }
 
     // drive asks each driver (and you) what to do this step.
-    func drive(_ dt: float32) {
+    func drive(dt: float32) {
         let held = Phase == .countdown
         Racers.Each { _, r in
             if !r.IsPlayer || self.Autopilot || r.Finished {
@@ -208,7 +208,7 @@ public final class Race {
 
     // rules moves the clock, counts laps, keeps the order, fills and burns
     // nitro, and puts back cars that are stuck.
-    func rules(_ dt: float32) {
+    func rules(dt: float32) {
         Clock += dt
         if Phase == .countdown && Clock >= 0 {
             Phase = .racing
@@ -258,7 +258,7 @@ public final class Race {
 
     // drafting is whether a car sits in another's slipstream: one ahead
     // within 18 m and nearly in line.
-    func drafting(_ r: Racer) -> bool {
+    func drafting(r: Racer) -> bool {
         if r.Car.Speed < 20 { return false }
         var found = false
         Racers.Each { _, o in
@@ -271,7 +271,7 @@ public final class Race {
 
     // rescue puts a car back on the track when it's been upside down,
     // stuck, or off past the walls for a while.
-    func rescue(_ r: Racer, _ dt: float32) {
+    func rescue(r: Racer, dt: float32) {
         let car = r.Car
         if car.Up.Y < 0.35 { r.flipped += dt } else { r.flipped = 0 }
         let trying = r.Controls.Throttle > 0.3 || r.Controls.Brake > 0.3
@@ -284,7 +284,7 @@ public final class Race {
 
     /// Respawn puts a car back on the track a little behind where it was,
     /// at the middle, facing the way the race goes, rolling.
-    public func Respawn(_ r: Racer) {
+    public func Respawn(r: Racer) {
         let s = r.Place.S - 6
         let (p, _) = Track.At(s, lateral: math.Clamp(r.Place.Lateral, -Track.Edge * 0.5, Track.Edge * 0.5))
         r.Car.Place(p + geom.Vec3(0, 0.05, 0), yaw: Track.Yaw(s))

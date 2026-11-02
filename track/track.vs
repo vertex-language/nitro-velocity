@@ -67,12 +67,12 @@ public final class Track {
     public let Curvature: [float32]
 
     /// Load reads a track's JSON.
-    public static func Load(_ path: fs.Path) throws -> Track {
+    public static func Load(path: fs.Path) throws -> Track {
         return try Decode(try fs.ReadText(path))
     }
 
     /// Decode reads a track from JSON text.
-    public static func Decode(_ text: string) throws -> Track {
+    public static func Decode(text: string) throws -> Track {
         let v = try json.Parse(bytes: [uint8](text.utf8))
         var pts: [geom.Vec3] = []
         if let o = v["oval"] {
@@ -140,7 +140,7 @@ public final class Track {
     /// Locate finds where a point is: along the lap, and off the middle.
     /// `hint` (an Index from last time) makes it quick for something that
     /// moves a little each step.
-    public func Locate(_ p: geom.Vec3, hint: int = -1) -> Place {
+    public func Locate(p: geom.Vec3, hint: int = -1) -> Place {
         let n = Points.count
         var best = 0
         var bestD: float32 = 1e30
@@ -178,7 +178,7 @@ public final class Track {
     }
 
     /// Index is the sample at or before s meters along.
-    public func Index(_ s: float32) -> int {
+    public func Index(s: float32) -> int {
         var x = s.truncatingRemainder(dividingBy: Length)
         if x < 0 { x += Length }
         // Samples are nearly a meter apart: start near, walk.
@@ -191,7 +191,7 @@ public final class Track {
 
     /// At is the point s meters along and `lateral` meters left of the
     /// middle, on the ground; with the way the track runs there.
-    public func At(_ s: float32, lateral: float32 = 0) -> (geom.Vec3, geom.Vec3) {
+    public func At(s: float32, lateral: float32 = 0) -> (geom.Vec3, geom.Vec3) {
         let n = Points.count
         var x = s.truncatingRemainder(dividingBy: Length)
         if x < 0 { x += Length }
@@ -207,25 +207,25 @@ public final class Track {
 
     /// Turn is how sharply the track turns s meters along (1/radius,
     /// positive left).
-    public func Turn(_ s: float32) -> float32 {
+    public func Turn(s: float32) -> float32 {
         return Curvature[Index(s)]
     }
 
     /// Yaw is the heading of the track s meters along (0 down +Z, growing
     /// toward +X, as vehicle.Car's).
-    public func Yaw(_ s: float32) -> float32 {
+    public func Yaw(s: float32) -> float32 {
         let (_, t) = At(s)
         return math.Atan2(t.X, t.Z)
     }
 
     /// Kerbed is whether a stretch has kerbs: where it turns.
-    public func Kerbed(_ i: int) -> bool {
+    public func Kerbed(i: int) -> bool {
         return math.Abs(Curvature[i]) > 0.0025
     }
 
     /// SurfaceAt is what's under a point `lateral` meters off the middle
     /// at sample i.
-    public func SurfaceAt(_ i: int, lateral: float32) -> Surface {
+    public func SurfaceAt(i: int, lateral: float32) -> Surface {
         let a = math.Abs(lateral)
         if a <= Edge { return .asphalt }
         if Kerbed(i) && a <= Edge + Kerb { return .kerb }
@@ -268,7 +268,7 @@ public final class Track {
 
     /// Wall is how far a point is into a wall, and the way out; nil when
     /// it's clear of both.
-    public func Wall(_ p: geom.Vec3, hint: int = -1) -> (geom.Vec3, float32)? {
+    public func Wall(p: geom.Vec3, hint: int = -1) -> (geom.Vec3, float32)? {
         let place = Locate(p, hint: hint)
         let left = Lefts[place.Index]
         if place.Lateral > WallInside {
@@ -282,7 +282,7 @@ public final class Track {
 
     /// Grid is starting place `slot` (0 on pole): two by two behind the
     /// line, the right column a little further back. Its point and yaw.
-    public func Grid(_ slot: int) -> (geom.Vec3, float32) {
+    public func Grid(slot: int) -> (geom.Vec3, float32) {
         let row = slot / 2, col = slot % 2
         let s = Length - 9 - float32(row) * 10 - float32(col) * 5
         let lateral: float32 = col == 0 ? Width * 0.22 : -Width * 0.22
@@ -305,7 +305,7 @@ final class hintBox {
 // joined by half circles of `radius`, a sample about every meter, run
 // counterclockwise from the middle of the main straight (x = -radius,
 // heading +Z).
-func oval(_ straight: float32, _ radius: float32) -> [geom.Vec3] {
+func oval(straight: float32, radius: float32) -> [geom.Vec3] {
     var pts: [geom.Vec3] = []
     let half = straight / 2
     let arcSteps = max(16, int(float32(math.Pi) * radius))
@@ -331,7 +331,7 @@ func oval(_ straight: float32, _ radius: float32) -> [geom.Vec3] {
 
 // loop is a smooth closed curve through control points (centripetal
 // Catmull-Rom), a sample about every meter.
-func loop(_ c: [geom.Vec3]) -> [geom.Vec3] {
+func loop(c: [geom.Vec3]) -> [geom.Vec3] {
     let n = c.count
     var out: [geom.Vec3] = []
     for i in 0..<n {

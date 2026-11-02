@@ -29,16 +29,16 @@ public struct CarsError: Error, CustomStringConvertible {
 }
 
 /// LoadCars reads the cars (data/cars.json).
-public func LoadCars(_ path: fs.Path) throws -> [CarInfo] {
+public func LoadCars(path: fs.Path) throws -> [CarInfo] {
     return try DecodeCars(try fs.ReadText(path))
 }
 
 /// DecodeCars reads the cars from JSON text.
-public func DecodeCars(_ text: string) throws -> [CarInfo] {
+public func DecodeCars(text: string) throws -> [CarInfo] {
     let v = try json.Parse(bytes: [uint8](text.utf8))
     var out: [CarInfo] = []
     for c in v["cars"]?.Array ?? [] {
-        func vec(_ x: json.Value?) -> geom.Vec3 {
+        func vec(x: json.Value?) -> geom.Vec3 {
             let a = x?.Array ?? []
             if a.count < 3 { return geom.Vec3.Zero }
             return geom.Vec3(float32(a[0].Double ?? 0), float32(a[1].Double ?? 0), float32(a[2].Double ?? 0))
@@ -107,7 +107,7 @@ public func Build(hubs: [geom.Vec3], radii: [float32], min lo: geom.Vec3, max hi
 /// Picks is a car for each of `field` rivals out of `count`, at random by
 /// `seed`: dealt from a shuffled deck of every car (reshuffled when it runs
 /// out), so the field is as mixed as it can be.
-public func Picks(_ count: int, field: int, seed: uint64) -> [int] {
+public func Picks(count: int, field: int, seed: uint64) -> [int] {
     var out: [int] = []
     if count <= 0 { return out }
     var x = seed &* 0x9E3779B97F4A7C15 | 1
